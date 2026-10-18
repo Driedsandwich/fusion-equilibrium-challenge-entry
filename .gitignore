@@ -1,0 +1,15 @@
+# data and environment (never committed)
+.venv/
+_data/
+*.parquet
+*.npz
+!starter_ref/fusion_scoring/masks/d3d_envelope.npz
+# run artifacts
+diag/run_*/
+diag/synthetic_checks/
+**/_*.log
+__pycache__/
+*.pyc
+# internal work notes
+_briefs/
+base/*.log
