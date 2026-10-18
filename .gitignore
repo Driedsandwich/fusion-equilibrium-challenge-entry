@@ -14,3 +14,4 @@ __pycache__/
 _briefs/
 base/*.log
 *.log
+_work/
