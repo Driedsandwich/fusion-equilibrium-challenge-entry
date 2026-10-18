@@ -1,0 +1,14 @@
+{
+  "j1": {
+    "direct_sse": 94.49309040791863,
+    "projected_sse": 94.493090407919,
+    "relative_difference": 3.910150689327958e-15,
+    "max_abs_filament_A": 610625.9604356983
+  },
+  "j2": {
+    "direct_sse": 2835.585763520019,
+    "projected_sse": 2835.5857635200264,
+    "relative_difference": 2.5659451771091028e-15,
+    "max_abs_filament_A": 4830485.0623945715
+  }
+}

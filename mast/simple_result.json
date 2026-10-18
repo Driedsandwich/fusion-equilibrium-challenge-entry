@@ -1,0 +1,524 @@
+{
+  "status": "complete",
+  "shots": 10,
+  "frames": 484,
+  "order": "original public-test stream indices from local listing; sparse ten-shot subset, not full submission",
+  "calibration": {
+    "j2_sufficient": false,
+    "R2_loss": 0.03357587355313252,
+    "threshold": 0.001,
+    "chosen": "j1",
+    "alpha_F": -0.9401084179029024,
+    "c_for_mast": 0.11267319982828738
+  },
+  "priors": {
+    "kappa": 1.8078131898013887,
+    "q95": 4.977596759796143,
+    "betaN": 0.9313037991523743,
+    "lcfs_frames": 2342,
+    "scalar_frames": 2342,
+    "source": "fixed 12 DIII-D training shots, all frames"
+  },
+  "group_checks": {
+    "magnetics_p2l_current": {
+      "conductors": 20,
+      "allocation_sum": 1.0
+    },
+    "magnetics_p2u_current": {
+      "conductors": 20,
+      "allocation_sum": 1.0
+    },
+    "magnetics_p3l_current": {
+      "conductors": 8,
+      "allocation_sum": 0.9999999999999999
+    },
+    "magnetics_p3u_current": {
+      "conductors": 8,
+      "allocation_sum": 0.9999999999999999
+    },
+    "magnetics_p4l_current": {
+      "conductors": 23,
+      "allocation_sum": 0.9999999999999998
+    },
+    "magnetics_p4u_current": {
+      "conductors": 23,
+      "allocation_sum": 0.9999999999999998
+    },
+    "magnetics_p5l_current": {
+      "conductors": 23,
+      "allocation_sum": 0.9999999999999998
+    },
+    "magnetics_p5u_current": {
+      "conductors": 23,
+      "allocation_sum": 0.9999999999999998
+    },
+    "magnetics_p6l_current": {
+      "conductors": 4,
+      "allocation_sum": 1.0
+    },
+    "magnetics_p6u_current": {
+      "conductors": 4,
+      "allocation_sum": 1.0
+    },
+    "magnetics_sol_current": {
+      "conductors": 656,
+      "allocation_sum": 1.0000000000000004
+    }
+  },
+  "solenoid": "area-normalized geometry; unknown turns not inferred; coefficients 0.5 and 1 inside alpha_F",
+  "amplitude_definition": "per-frame max(psi)-min(psi), then pooled median over every predicted frame",
+  "versions": {
+    "0.5": {
+      "amplitude_median": 0.18048095703125,
+      "shots": [
+        {
+          "file": "mast_shot_0035568738.parquet",
+          "stream_index": 0,
+          "frames": 53,
+          "shape": [
+            53,
+            65,
+            65
+          ],
+          "finite": true,
+          "dtype": "float16",
+          "psi_min": 0.034210205078125,
+          "psi_max": 0.318115234375,
+          "positive_fraction": 1.0,
+          "negative_fraction": 0.0,
+          "amplitude_median": 0.241058349609375,
+          "Thomson_outside_time_frames": 6,
+          "R_center_median_m": 0.9353984416971906,
+          "a_median_m": 0.5981190055608749,
+          "Ip_A_min": 455974.7279814003,
+          "Ip_A_max": 876115.6365793581
+        },
+        {
+          "file": "mast_shot_15aafdf694.parquet",
+          "stream_index": 100,
+          "frames": 34,
+          "shape": [
+            34,
+            65,
+            65
+          ],
+          "finite": true,
+          "dtype": "float16",
+          "psi_min": 0.047393798828125,
+          "psi_max": 0.328369140625,
+          "positive_fraction": 1.0,
+          "negative_fraction": 0.0,
+          "amplitude_median": 0.2355804443359375,
+          "Thomson_outside_time_frames": 0,
+          "R_center_median_m": 0.8759595555773709,
+          "a_median_m": 0.5593335255980492,
+          "Ip_A_min": 534406.1979505299,
+          "Ip_A_max": 742150.898739184
+        },
+        {
+          "file": "mast_shot_272b99df04.parquet",
+          "stream_index": 200,
+          "frames": 40,
+          "shape": [
+            40,
+            65,
+            65
+          ],
+          "finite": true,
+          "dtype": "float16",
+          "psi_min": 0.038360595703125,
+          "psi_max": 0.295654296875,
+          "positive_fraction": 1.0,
+          "negative_fraction": 0.0,
+          "amplitude_median": 0.1956329345703125,
+          "Thomson_outside_time_frames": 0,
+          "R_center_median_m": 0.8202186849806653,
+          "a_median_m": 0.5456297509372234,
+          "Ip_A_min": 466794.22299115075,
+          "Ip_A_max": 894685.5849468951
+        },
+        {
+          "file": "mast_shot_3e332063ec.parquet",
+          "stream_index": 300,
+          "frames": 84,
+          "shape": [
+            84,
+            65,
+            65
+          ],
+          "finite": true,
+          "dtype": "float16",
+          "psi_min": 0.06610107421875,
+          "psi_max": 0.2218017578125,
+          "positive_fraction": 1.0,
+          "negative_fraction": 0.0,
+          "amplitude_median": 0.126495361328125,
+          "Thomson_outside_time_frames": 0,
+          "R_center_median_m": 0.9125595988882274,
+          "a_median_m": 0.5038534998893738,
+          "Ip_A_min": 250248.01635742188,
+          "Ip_A_max": 429061.3708496094
+        },
+        {
+          "file": "mast_shot_5100b8cbec.parquet",
+          "stream_index": 400,
+          "frames": 40,
+          "shape": [
+            40,
+            65,
+            65
+          ],
+          "finite": true,
+          "dtype": "float16",
+          "psi_min": 0.041595458984375,
+          "psi_max": 0.32666015625,
+          "positive_fraction": 1.0,
+          "negative_fraction": 0.0,
+          "amplitude_median": 0.250274658203125,
+          "Thomson_outside_time_frames": 0,
+          "R_center_median_m": 0.9036311118571445,
+          "a_median_m": 0.5279437378048897,
+          "Ip_A_min": 591101.2281766086,
+          "Ip_A_max": 767612.7036274343
+        },
+        {
+          "file": "mast_shot_67708c0411.parquet",
+          "stream_index": 500,
+          "frames": 12,
+          "shape": [
+            12,
+            65,
+            65
+          ],
+          "finite": true,
+          "dtype": "float16",
+          "psi_min": 0.0660400390625,
+          "psi_max": 0.1875,
+          "positive_fraction": 1.0,
+          "negative_fraction": 0.0,
+          "amplitude_median": 0.10089111328125,
+          "Thomson_outside_time_frames": 0,
+          "R_center_median_m": 0.8650811673183676,
+          "a_median_m": 0.5528347305953503,
+          "Ip_A_min": 385829.4319387377,
+          "Ip_A_max": 434834.6181391251
+        },
+        {
+          "file": "mast_shot_7b517e0d75.parquet",
+          "stream_index": 600,
+          "frames": 46,
+          "shape": [
+            46,
+            65,
+            65
+          ],
+          "finite": true,
+          "dtype": "float16",
+          "psi_min": 0.043304443359375,
+          "psi_max": 0.263671875,
+          "positive_fraction": 1.0,
+          "negative_fraction": 0.0,
+          "amplitude_median": 0.16900634765625,
+          "Thomson_outside_time_frames": 0,
+          "R_center_median_m": 0.8514568561294056,
+          "a_median_m": 0.5722317360341549,
+          "Ip_A_min": 336080.45613267284,
+          "Ip_A_max": 649909.103912094
+        },
+        {
+          "file": "mast_shot_932fa4dde8.parquet",
+          "stream_index": 700,
+          "frames": 71,
+          "shape": [
+            71,
+            65,
+            65
+          ],
+          "finite": true,
+          "dtype": "float16",
+          "psi_min": 0.02081298828125,
+          "psi_max": 0.332763671875,
+          "positive_fraction": 1.0,
+          "negative_fraction": 0.0,
+          "amplitude_median": 0.21905517578125,
+          "Thomson_outside_time_frames": 4,
+          "R_center_median_m": 0.8524420971543872,
+          "a_median_m": 0.5508280098438263,
+          "Ip_A_min": 452996.46453060117,
+          "Ip_A_max": 900049.5558815895
+        },
+        {
+          "file": "mast_shot_ac633677b6.parquet",
+          "stream_index": 800,
+          "frames": 54,
+          "shape": [
+            54,
+            65,
+            65
+          ],
+          "finite": true,
+          "dtype": "float16",
+          "psi_min": 0.0282745361328125,
+          "psi_max": 0.3037109375,
+          "positive_fraction": 1.0,
+          "negative_fraction": 0.0,
+          "amplitude_median": 0.23162841796875,
+          "Thomson_outside_time_frames": 0,
+          "R_center_median_m": 0.8808483220544208,
+          "a_median_m": 0.5275832414627075,
+          "Ip_A_min": 482179.60682436876,
+          "Ip_A_max": 920747.7276206289
+        },
+        {
+          "file": "mast_shot_c23ce1f721.parquet",
+          "stream_index": 900,
+          "frames": 50,
+          "shape": [
+            50,
+            65,
+            65
+          ],
+          "finite": true,
+          "dtype": "float16",
+          "psi_min": 0.06610107421875,
+          "psi_max": 0.21728515625,
+          "positive_fraction": 1.0,
+          "negative_fraction": 0.0,
+          "amplitude_median": 0.121734619140625,
+          "Thomson_outside_time_frames": 0,
+          "R_center_median_m": 0.9380306848948023,
+          "a_median_m": 0.5475247539579868,
+          "Ip_A_min": 393427.03484506847,
+          "Ip_A_max": 418082.821941383
+        }
+      ]
+    },
+    "1.0": {
+      "amplitude_median": 0.1805267333984375,
+      "shots": [
+        {
+          "file": "mast_shot_0035568738.parquet",
+          "stream_index": 0,
+          "frames": 53,
+          "shape": [
+            53,
+            65,
+            65
+          ],
+          "finite": true,
+          "dtype": "float16",
+          "psi_min": 0.034271240234375,
+          "psi_max": 0.318115234375,
+          "positive_fraction": 1.0,
+          "negative_fraction": 0.0,
+          "amplitude_median": 0.240997314453125,
+          "Thomson_outside_time_frames": 6,
+          "R_center_median_m": 0.9353984416971906,
+          "a_median_m": 0.5981190055608749,
+          "Ip_A_min": 455974.7279814003,
+          "Ip_A_max": 876115.6365793581
+        },
+        {
+          "file": "mast_shot_15aafdf694.parquet",
+          "stream_index": 100,
+          "frames": 34,
+          "shape": [
+            34,
+            65,
+            65
+          ],
+          "finite": true,
+          "dtype": "float16",
+          "psi_min": 0.04742431640625,
+          "psi_max": 0.328369140625,
+          "positive_fraction": 1.0,
+          "negative_fraction": 0.0,
+          "amplitude_median": 0.23553466796875,
+          "Thomson_outside_time_frames": 0,
+          "R_center_median_m": 0.8759595555773709,
+          "a_median_m": 0.5593335255980492,
+          "Ip_A_min": 534406.1979505299,
+          "Ip_A_max": 742150.898739184
+        },
+        {
+          "file": "mast_shot_272b99df04.parquet",
+          "stream_index": 200,
+          "frames": 40,
+          "shape": [
+            40,
+            65,
+            65
+          ],
+          "finite": true,
+          "dtype": "float16",
+          "psi_min": 0.03839111328125,
+          "psi_max": 0.295654296875,
+          "positive_fraction": 1.0,
+          "negative_fraction": 0.0,
+          "amplitude_median": 0.1955718994140625,
+          "Thomson_outside_time_frames": 0,
+          "R_center_median_m": 0.8202186849806653,
+          "a_median_m": 0.5456297509372234,
+          "Ip_A_min": 466794.22299115075,
+          "Ip_A_max": 894685.5849468951
+        },
+        {
+          "file": "mast_shot_3e332063ec.parquet",
+          "stream_index": 300,
+          "frames": 84,
+          "shape": [
+            84,
+            65,
+            65
+          ],
+          "finite": true,
+          "dtype": "float16",
+          "psi_min": 0.06610107421875,
+          "psi_max": 0.2218017578125,
+          "positive_fraction": 1.0,
+          "negative_fraction": 0.0,
+          "amplitude_median": 0.126495361328125,
+          "Thomson_outside_time_frames": 0,
+          "R_center_median_m": 0.9125595988882274,
+          "a_median_m": 0.5038534998893738,
+          "Ip_A_min": 250248.01635742188,
+          "Ip_A_max": 429061.3708496094
+        },
+        {
+          "file": "mast_shot_5100b8cbec.parquet",
+          "stream_index": 400,
+          "frames": 40,
+          "shape": [
+            40,
+            65,
+            65
+          ],
+          "finite": true,
+          "dtype": "float16",
+          "psi_min": 0.0416259765625,
+          "psi_max": 0.32666015625,
+          "positive_fraction": 1.0,
+          "negative_fraction": 0.0,
+          "amplitude_median": 0.250244140625,
+          "Thomson_outside_time_frames": 0,
+          "R_center_median_m": 0.9036311118571445,
+          "a_median_m": 0.5279437378048897,
+          "Ip_A_min": 591101.2281766086,
+          "Ip_A_max": 767612.7036274343
+        },
+        {
+          "file": "mast_shot_67708c0411.parquet",
+          "stream_index": 500,
+          "frames": 12,
+          "shape": [
+            12,
+            65,
+            65
+          ],
+          "finite": true,
+          "dtype": "float16",
+          "psi_min": 0.0660400390625,
+          "psi_max": 0.1875,
+          "positive_fraction": 1.0,
+          "negative_fraction": 0.0,
+          "amplitude_median": 0.10089111328125,
+          "Thomson_outside_time_frames": 0,
+          "R_center_median_m": 0.8650811673183676,
+          "a_median_m": 0.5528347305953503,
+          "Ip_A_min": 385829.4319387377,
+          "Ip_A_max": 434834.6181391251
+        },
+        {
+          "file": "mast_shot_7b517e0d75.parquet",
+          "stream_index": 600,
+          "frames": 46,
+          "shape": [
+            46,
+            65,
+            65
+          ],
+          "finite": true,
+          "dtype": "float16",
+          "psi_min": 0.043304443359375,
+          "psi_max": 0.263671875,
+          "positive_fraction": 1.0,
+          "negative_fraction": 0.0,
+          "amplitude_median": 0.168975830078125,
+          "Thomson_outside_time_frames": 0,
+          "R_center_median_m": 0.8514568561294056,
+          "a_median_m": 0.5722317360341549,
+          "Ip_A_min": 336080.45613267284,
+          "Ip_A_max": 649909.103912094
+        },
+        {
+          "file": "mast_shot_932fa4dde8.parquet",
+          "stream_index": 700,
+          "frames": 71,
+          "shape": [
+            71,
+            65,
+            65
+          ],
+          "finite": true,
+          "dtype": "float16",
+          "psi_min": 0.0208740234375,
+          "psi_max": 0.3330078125,
+          "positive_fraction": 1.0,
+          "negative_fraction": 0.0,
+          "amplitude_median": 0.218994140625,
+          "Thomson_outside_time_frames": 4,
+          "R_center_median_m": 0.8524420971543872,
+          "a_median_m": 0.5508280098438263,
+          "Ip_A_min": 452996.46453060117,
+          "Ip_A_max": 900049.5558815895
+        },
+        {
+          "file": "mast_shot_ac633677b6.parquet",
+          "stream_index": 800,
+          "frames": 54,
+          "shape": [
+            54,
+            65,
+            65
+          ],
+          "finite": true,
+          "dtype": "float16",
+          "psi_min": 0.0283050537109375,
+          "psi_max": 0.3037109375,
+          "positive_fraction": 1.0,
+          "negative_fraction": 0.0,
+          "amplitude_median": 0.231597900390625,
+          "Thomson_outside_time_frames": 0,
+          "R_center_median_m": 0.8808483220544208,
+          "a_median_m": 0.5275832414627075,
+          "Ip_A_min": 482179.60682436876,
+          "Ip_A_max": 920747.7276206289
+        },
+        {
+          "file": "mast_shot_c23ce1f721.parquet",
+          "stream_index": 900,
+          "frames": 50,
+          "shape": [
+            50,
+            65,
+            65
+          ],
+          "finite": true,
+          "dtype": "float16",
+          "psi_min": 0.06610107421875,
+          "psi_max": 0.21728515625,
+          "positive_fraction": 1.0,
+          "negative_fraction": 0.0,
+          "amplitude_median": 0.121673583984375,
+          "Thomson_outside_time_frames": 0,
+          "R_center_median_m": 0.9380306848948023,
+          "a_median_m": 0.5475247539579868,
+          "Ip_A_min": 393427.03484506847,
+          "Ip_A_max": 418082.821941383
+        }
+      ]
+    }
+  },
+  "artifact_reopen_validation": true,
+  "elapsed_seconds": 4.289194749988383
+}

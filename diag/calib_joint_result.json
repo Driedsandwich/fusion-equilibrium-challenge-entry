@@ -1,0 +1,71 @@
+{
+  "status": "complete",
+  "shots": [
+    "d3d_shot_00000a10ac.parquet",
+    "d3d_shot_031ec9e642.parquet",
+    "d3d_shot_05d8f8a714.parquet",
+    "d3d_shot_08c3a3f160.parquet",
+    "d3d_shot_0ba731cc9d.parquet",
+    "d3d_shot_0e1b070fe7.parquet",
+    "d3d_shot_1217bc4c60.parquet",
+    "d3d_shot_1558027fd7.parquet",
+    "d3d_shot_187f9af914.parquet",
+    "d3d_shot_1bb17d6385.parquet",
+    "d3d_shot_1ecfbb00ba.parquet",
+    "d3d_shot_20e5596616.parquet"
+  ],
+  "frames": 474,
+  "stride": 5,
+  "box_m": [
+    0.9687615156173706,
+    2.3748195648193358,
+    -1.3453577041625977,
+    1.2525798559188843
+  ],
+  "rcond": 1e-10,
+  "results": {
+    "j1": {
+      "alpha_F": -0.9401084179029024,
+      "beta_E": -17.746965469815656,
+      "R2_psi": 0.9988425462275309,
+      "sse": 94.493090407919,
+      "local_rank": 192,
+      "global_condition": 50947.22751307992,
+      "nearest_physical_alpha": -1.0,
+      "relative_distance": 0.05989158209709755,
+      "c_median": 0.11267319982828738,
+      "c_abs_max": 0.47456631865858406,
+      "max_sum_I_minus_Ip_A": 2.561137080192566e-09
+    },
+    "j2": {
+      "alpha_F": -0.6436022646528428,
+      "beta_E": -106.54849299210834,
+      "R2_psi": 0.9652666726743984,
+      "sse": 2835.5857635200264,
+      "local_rank": 191,
+      "global_condition": 1895.4984506666553,
+      "nearest_physical_alpha": -1.0,
+      "relative_distance": 0.35639773534715724,
+      "c_median": 0.0,
+      "c_abs_max": 0.0,
+      "max_sum_I_minus_Ip_A": 1.3620592653751373e-08
+    }
+  },
+  "convention": {
+    "j2_sufficient": false,
+    "R2_loss": 0.03357587355313252,
+    "threshold": 0.001,
+    "chosen": "j1",
+    "alpha_F": -0.9401084179029024,
+    "c_for_mast": 0.11267319982828738
+  },
+  "priors": {
+    "kappa": 1.8078131898013887,
+    "q95": 4.977596759796143,
+    "betaN": 0.9313037991523743,
+    "lcfs_frames": 2342,
+    "scalar_frames": 2342,
+    "source": "fixed 12 DIII-D training shots, all frames"
+  },
+  "elapsed_seconds": 4.56940995901823
+}

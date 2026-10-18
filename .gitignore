@@ -13,3 +13,4 @@ __pycache__/
 # internal work notes
 _briefs/
 base/*.log
+*.log
