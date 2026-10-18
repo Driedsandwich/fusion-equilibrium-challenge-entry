@@ -11,10 +11,31 @@ import numpy as np
 from threadpoolctl import threadpool_limits
 from features_v2 import INPUT_COLUMNS, build_features, feature_names
 
-def assemble(work, output, machine, no_guard=False, config=None):
+def run_identity(args, machine):
+    code = ['predict.py', 'submission_io.py', 'base/features.py', 'base/features_v2.py',
+            'diag/capacity.py', 'diag/greens.py', 'mast/simple.py']
+    code += [str(p.relative_to(io.ROOT)) for p in sorted((io.ROOT/'starter_ref').rglob('*.py'))]
+    local = io.input_path(args.local_dir) if args.local_dir else None
+    paths = sorted(local.glob('*.parquet')) if local else []
+    if args.limit_shots:
+        paths = paths[:args.limit_shots]
+    return dict(repo=args.repo, config=args.config, split=args.split, revision=args.revision,
+                machine=machine, local_dir=str(local) if local else None,
+                limit_shots=args.limit_shots,
+                local_sha256={p.name: io.sha256(p) for p in paths},
+                weights=str(io.input_path(args.weights)),
+                weights_sha256=io.sha256(io.input_path(args.weights)/'model.joblib'),
+                calibration_sha256=io.sha256('diag/calib_joint_result.json'),
+                code_sha256={p: io.sha256(p) for p in code},
+                mast_policy='j1_alpha;c=0;solenoid=1')
+
+def signature(identity):
+    return io.hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
+
+def assemble(work, output, machine, no_guard=False, identity=None):
     manifest = json.loads((work/'manifest.json').read_text())
-    if manifest['source']['machine'] != machine or manifest['source']['config'] != config:
-        raise ValueError('Work directory machine/config mismatch')
+    if manifest.get('format_version') != 2 or manifest['source'] != identity:
+        raise ValueError('Work directory source/model/code mismatch; use identical arguments and files')
     count = manifest.get('shot_count')
     if count is None or count < 1:
         raise ValueError('Source was not exhausted: run inference through the final shot first')
@@ -22,16 +43,22 @@ def assemble(work, output, machine, no_guard=False, config=None):
     actual = sorted(p.name for p in work.glob('shot_*.npz'))
     if set(actual) != set(expected):
         raise ValueError('Missing or extra shot chunks; finish all ranges before assembly')
+    shots = manifest.get('shots', {})
+    if set(shots) != {str(i) for i in range(count)}:
+        raise ValueError('Missing or extra shot identities in manifest')
     output.parent.mkdir(parents=True, exist_ok=True)
     # Exclusive creation protects existing finished submissions.
     if output.exists():
         raise FileExistsError(f'Output exists; choose a new --output: {output}')
-    temporary = output.with_suffix(output.suffix+'.partial')
-    with io.zipfile.ZipFile(temporary, 'w', compression=io.zipfile.ZIP_DEFLATED, allowZip64=True) as archive:
+    temporary = io.output_path(output.with_suffix(output.suffix+'.partial'))
+    with io.zipfile.ZipFile(temporary, 'x', compression=io.zipfile.ZIP_DEFLATED, allowZip64=True) as archive:
         for i, name in enumerate(expected):
             io.guard(no_guard)
             with np.load(work/name, allow_pickle=False) as chunk:
                 frames = int(chunk['frames'])
+                if (shots[str(i)] != dict(source=str(chunk['source']), frames=frames)
+                        or str(chunk['run_signature']) != signature(identity)):
+                    raise ValueError(f'Chunk source/T/run mismatch: {name}')
                 arrays = {f: chunk[f] for f in io.FIELDS}
                 io.check_arrays(arrays, frames, machine, True)
                 for field, arr in arrays.items():
@@ -58,20 +85,17 @@ def main():
         ap.error('--no-guard is only permitted with --local-dir')
     work = io.output_path(args.work_dir or '_work/'+re.sub(r'[^A-Za-z0-9_.-]', '_', args.config))
     work.mkdir(parents=True, exist_ok=True)
+    identity = run_identity(args, machine)
     if args.assemble:
-        assemble(work, io.output_path(args.output or machine+'_private_test.npz'), machine, args.no_guard, args.config)
+        assemble(work, io.output_path(args.output or machine+'_private_test.npz'), machine, args.no_guard, identity)
         return
-    identity = dict(repo=args.repo, config=args.config, split=args.split, machine=machine,
-        local_dir=str(args.local_dir.resolve()) if args.local_dir else None, limit_shots=args.limit_shots,
-        weights=str(io.Path(args.weights).resolve()) if machine == 'diii_d' else None,
-        mast_policy='j1_alpha;c=0;solenoid=1')
     mp = work/'manifest.json'
-    manifest = json.loads(mp.read_text()) if mp.exists() else dict(source=identity)
-    if manifest['source'] != identity:
+    manifest = json.loads(mp.read_text()) if mp.exists() else dict(format_version=2, source=identity, shots={})
+    if manifest.get('format_version') != 2 or manifest['source'] != identity:
         raise ValueError('Work directory belongs to a different source/model; choose another --work-dir')
     io.write_json(mp, manifest)
     if machine == 'diii_d':
-        model = joblib.load(io.Path(args.weights)/'model.joblib')
+        model = joblib.load(io.input_path(args.weights)/'model.joblib')
         if model['features'] != feature_names() or model['variant'] != 'd_hist20':
             raise ValueError('Incompatible model/features')
         columns = INPUT_COLUMNS
@@ -94,9 +118,13 @@ def main():
                 continue
             dst = work/f'shot_{index:04d}.npz'
             frames = len(row['efit_times'])
+            shot = dict(source=source, frames=frames)
+            if str(index) in manifest['shots'] and manifest['shots'][str(index)] != shot:
+                raise ValueError(f'Manifest shot source/T mismatch: {index}')
             if dst.exists():
                 with np.load(dst, allow_pickle=False) as chunk:
-                    if str(chunk['source']) != source or int(chunk['frames']) != frames:
+                    if (manifest['shots'].get(str(index)) != shot or str(chunk['source']) != source
+                            or int(chunk['frames']) != frames or str(chunk['run_signature']) != signature(identity)):
                         raise ValueError(f'Existing chunk identity mismatch: {dst}')
                     io.check_arrays({f: chunk[f] for f in io.FIELDS}, frames, machine, True)
                 print(f'skip shot_{index:04d}', flush=True)
@@ -115,10 +143,13 @@ def main():
                 arrays = predictions[1.]
                 del predictions, g
             io.check_arrays(arrays, frames, machine, True)
+            manifest['shots'][str(index)] = shot
+            io.write_json(mp, manifest)
             # A complete chunk becomes visible only after close; interrupted partial files are not skipped.
-            temporary = dst.with_suffix('.partial')
-            with temporary.open('wb') as stream:
-                np.savez_compressed(stream, **arrays, frames=np.int64(frames), source=np.asarray(source))
+            temporary = io.output_path(dst.with_suffix('.partial'))
+            with temporary.open('xb') as stream:
+                np.savez_compressed(stream, **arrays, frames=np.int64(frames), source=np.asarray(source),
+                                    run_signature=np.asarray(signature(identity)))
             temporary.replace(dst)
             print(f'predicted shot_{index:04d}: {frames} frames', flush=True)
             del row, arrays

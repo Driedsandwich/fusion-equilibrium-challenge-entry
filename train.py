@@ -26,14 +26,14 @@ def main():
     ap.add_argument('--limit-shots', type=int, default=0, help='offline smoke only')
     ap.add_argument('--no-guard', action='store_true')
     args = ap.parse_args()
-    if args.limit_shots < 0 or (args.no_guard and not 1 <= args.limit_shots <= 3):
-        ap.error('--no-guard requires --limit-shots 1..3')
-    names = [s.strip() for s in io.Path(args.shots).read_text().splitlines() if s.strip()]
+    if args.limit_shots < 0:
+        ap.error('--limit-shots must be nonnegative')
+    names = [s.strip() for s in io.input_path(args.shots).read_text().splitlines() if s.strip()]
     if len(names) != 312 or len(set(names)) != 312 or any(io.Path(n).name != n or not n.endswith('.parquet') for n in names):
         raise ValueError('Manifest must contain exactly 312 unique parquet basenames')
     if args.limit_shots:
         names = names[:args.limit_shots]
-    paths = [io.Path(args.data_dir)/n for n in names]
+    paths = [io.input_path(io.input_path(args.data_dir)/n) for n in names]
     if not all(p.is_file() for p in paths):
         raise ValueError('Missing training files; run fetch_train.py first')
     out = io.output_path(args.weights)

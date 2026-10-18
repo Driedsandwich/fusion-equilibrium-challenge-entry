@@ -8,6 +8,7 @@ for _key in ('OPENBLAS_NUM_THREADS', 'OMP_NUM_THREADS', 'MKL_NUM_THREADS',
     os.environ[_key] = '1'
 from pathlib import Path
 import json
+import hashlib
 import subprocess
 import zipfile
 import numpy as np
@@ -27,6 +28,24 @@ def output_path(value):
         raise ValueError(f'Output must be inside workspace, outside protected inputs: {path}')
     return path
 
+def input_path(value):
+    path = Path(value)
+    path = (path if path.is_absolute() else ROOT/path).resolve()
+    if not path.is_relative_to(ROOT):
+        raise ValueError(f'Input must be inside workspace: {path}')
+    return path
+
+def sha256(path):
+    with input_path(path).open('rb') as stream:
+        return hashlib.file_digest(stream, 'sha256').hexdigest()
+
+# Override inherited settings before either Hub library can be imported.
+for _key, _suffix in {
+    'HF_HOME': '', 'HF_HUB_CACHE': 'hub', 'HF_DATASETS_CACHE': 'datasets',
+    'HF_MODULES_CACHE': 'modules', 'HF_XET_CACHE': 'xet',
+}.items():
+    os.environ[_key] = str(output_path(Path('_work/hf_home')/_suffix))
+
 def guard(disabled=False):
     if disabled:
         return
@@ -45,6 +64,7 @@ def source_arguments(parser):
     parser.add_argument('--repo', default='Sophelio/fusion-equilibrium-challenge')
     parser.add_argument('--config', required=True)
     parser.add_argument('--split', default='public_test')
+    parser.add_argument('--revision', help='dataset revision; use a fixed commit SHA for reproduction')
     parser.add_argument('--machine', choices=('diii_d', 'mast'), help='required for names without a machine prefix')
     parser.add_argument('--local-dir', type=Path, help='offline: sorted *.parquet, one row per file')
     parser.add_argument('--limit-shots', type=int, default=0, help='offline smoke subset, 0=all')
@@ -63,7 +83,7 @@ def source_rows(args, columns, no_guard=True):
     if args.limit_shots < 0:
         raise ValueError('--limit-shots must be nonnegative')
     if args.local_dir:
-        directory = args.local_dir.resolve()
+        directory = input_path(args.local_dir)
         if not directory.is_relative_to(ROOT):
             raise ValueError('Local input must be in workspace')
         paths = sorted(directory.glob('*.parquet'))
@@ -86,8 +106,9 @@ def source_rows(args, columns, no_guard=True):
         except ImportError as exc:
             raise RuntimeError('Install datasets before using the Hugging Face streaming path') from exc
         guard(no_guard)
-        cache = output_path('_work/hf_datasets_cache')
-        ds = load_dataset(args.repo, args.config, split=args.split, streaming=True, cache_dir=str(cache))
+        cache = output_path(os.environ['HF_DATASETS_CACHE'])
+        ds = load_dataset(args.repo, args.config, split=args.split, revision=args.revision,
+                          streaming=True, cache_dir=str(cache))
         # Project before iteration: validator reads only times, MAST never decodes EFIT targets.
         names = ds.column_names
         selected = [c for c in columns if names is None or c in names]
@@ -123,4 +144,4 @@ def store_member(archive, key, array):
         np.lib.format.write_array(member, array, allow_pickle=False)
 
 def write_json(path, value):
-    path.write_text(json.dumps(value, indent=2, ensure_ascii=False, allow_nan=False)+'\n')
+    output_path(path).write_text(json.dumps(value, indent=2, ensure_ascii=False, allow_nan=False)+'\n')

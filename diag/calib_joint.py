@@ -5,7 +5,8 @@ import sys
 sys.dont_write_bytecode = True
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from capacity import (ROOT, load_shot, vacuum_and_ip, jsonable, swap_reading)
+from capacity import (ROOT, load_shot, vacuum_and_ip, jsonable, swap_reading,
+                      local_path, lcfs_bounds, padded_box)
 import argparse
 import gc
 import json
@@ -44,12 +45,35 @@ def main():
     ap.add_argument('--stride', type=int, default=5)
     ap.add_argument('--rcond', type=float, default=1e-10)
     ap.add_argument('--no-guard', action='store_true')
+    ap.add_argument('--capacity-result', default='diag/capacity_result_run2.json')
+    ap.add_argument('--rebuild-capacity-input', action='store_true',
+                    help='recreate only the fixed-shot identities and geometry consumed by calibration')
     args = ap.parse_args()
     if args.stride < 1 or not 0 < args.rcond < 1:
         ap.error('stride>=1 and 0<rcond<1 required')
     start = time.monotonic()
-    previous = json.loads((ROOT/'diag/capacity_result_run2.json').read_text())
     expected = ['d3d_shot_'+s+'.parquet' for s in SHOTS]
+    capacity_path = local_path(ROOT/args.capacity_result)
+    if args.rebuild_capacity_input:
+        if not capacity_path.is_relative_to(ROOT/'_work'):
+            raise ValueError('Rebuilt calibration input must be a new file under _work/')
+        extents = []
+        for filename in expected:
+            if not args.no_guard:
+                reading = swap_reading()
+                if not reading['ok'] or reading['free_mb'] < 300:
+                    raise RuntimeError('Memory guard: '+str(reading))
+            row = load_shot(ROOT/'_data/diii_d_train'/filename)
+            extents.append(lcfs_bounds(row)[0])
+            del row
+        bounds = np.asarray(extents)
+        box = padded_box([bounds[:, 0].min(), bounds[:, 1].max(),
+                          bounds[:, 2].min(), bounds[:, 3].max()])
+        capacity_path.parent.mkdir(parents=True, exist_ok=True)
+        with capacity_path.open('x') as stream:
+            json.dump(dict(shots=[dict(file=f) for f in expected], geometry=dict(box_m=box),
+                           scope='calibration input only; fixed 12 DIII-D shots; all stored LCFS frames; padding 0.05 m'), stream, indent=2)
+    previous = json.loads(capacity_path.read_text())
     if [s['file'] for s in previous['shots']] != expected:
         raise ValueError('Previous fixed-shot identities changed')
     box = previous['geometry']['box_m']

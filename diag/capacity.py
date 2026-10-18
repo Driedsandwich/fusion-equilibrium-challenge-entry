@@ -68,6 +68,15 @@ def local_path(path):
 
 def swap_reading():
     """Fail closed: do not treat an unavailable reading as free memory."""
+    if sys.platform.startswith('linux'):
+        try:
+            raw = Path('/proc/meminfo').read_text()
+            match = re.search(r'^SwapFree:\s+(\d+)\s+kB$', raw, re.MULTILINE)
+            if not match:
+                raise ValueError('SwapFree missing from /proc/meminfo')
+            return {"ok": True, "free_mb": int(match[1])/1024, "raw": match[0]}
+        except (OSError, ValueError) as e:
+            return {"ok": False, "error": str(e), "free_mb": None}
     try:
         p = subprocess.run(["/usr/sbin/sysctl", "vm.swapusage"],
                            capture_output=True, text=True, timeout=5, check=False)
