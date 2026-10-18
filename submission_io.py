@@ -21,7 +21,8 @@ from capacity import read_columns, swap_reading
 FIELDS = ('psirz', 'q95', 'betaN')
 
 def output_path(value):
-    path = Path(value).resolve()
+    path = Path(value)
+    path = (path if path.is_absolute() else ROOT/path).resolve()
     if not path.is_relative_to(ROOT) or any(path.is_relative_to(ROOT/d) for d in ('_data', 'starter_ref', '.git', '.venv')):
         raise ValueError(f'Output must be inside workspace, outside protected inputs: {path}')
     return path
