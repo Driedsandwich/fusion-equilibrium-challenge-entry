@@ -117,9 +117,11 @@ def thomson_geometry(row):
     use = np.where(np.abs(ts[right]-target)<np.abs(ts[left]-target),right,left)
     return np.asarray(centers)[use],np.asarray(radii)[use],int(np.sum((target<ts[0])|(target>ts[-1])))
 
-def predict(row, calibration, g):
+def predict(row, calibration, g, sol_scale=1.0):
+    """Predict both hypotheses after scaling only the solenoid current column."""
     times = row['efit_times']; mt = row['magnetics_time']
     current = np.column_stack([interp(mt,row[n],times) for n in P_NAMES+[SOL]])
+    current[:, -1] *= sol_scale
     ip = interp(mt,row['magnetics_plasma_current'],times)
     centers, radii, outside = thomson_geometry(row)
     rr,zz = np.meshgrid(row['efit_grid_R'],row['efit_grid_Z'])

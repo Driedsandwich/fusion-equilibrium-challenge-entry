@@ -27,7 +27,7 @@ def run_identity(args, machine):
                 weights_sha256=io.sha256(io.input_path(args.weights)/'model.joblib'),
                 calibration_sha256=io.sha256('diag/calib_joint_result.json'),
                 code_sha256={p: io.sha256(p) for p in code},
-                mast_policy='j1_alpha;c=0;solenoid=1')
+                mast_policy='j1_alpha;c=0', mast_sol_scale=args.mast_sol_scale)
 
 def signature(identity):
     return io.hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
@@ -71,6 +71,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     io.source_arguments(ap)
     ap.add_argument('--weights', default='weights')
+    ap.add_argument('--mast-sol-scale', type=float, default=1.0,
+                    help='multiplier for MAST solenoid current only (default: 1.0)')
     ap.add_argument('--work-dir')
     ap.add_argument('--output', help='default: <machine>_private_test.npz')
     ap.add_argument('--start', type=int, default=0, help='inclusive stream shot index')
@@ -78,6 +80,8 @@ def main():
     ap.add_argument('--assemble', action='store_true', help='assemble only; no dataset access')
     ap.add_argument('--no-guard', action='store_true', help='offline tests in restricted sandbox only')
     args = ap.parse_args()
+    if not np.isfinite(args.mast_sol_scale) or args.mast_sol_scale < 0:
+        ap.error('--mast-sol-scale must be finite and nonnegative')
     machine = io.machine_of(args)
     if args.start < 0 or (args.stop is not None and args.stop < args.start):
         ap.error('Require 0 <= start <= stop')
@@ -139,7 +143,7 @@ def main():
                 del x, coeff, psi
             else:
                 g, _ = simple.coil_groups(row)
-                predictions, _ = simple.predict(row, calibration, g)
+                predictions, _ = simple.predict(row, calibration, g, sol_scale=args.mast_sol_scale)
                 arrays = predictions[1.]
                 del predictions, g
             io.check_arrays(arrays, frames, machine, True)
