@@ -5,10 +5,68 @@ total ampere-turns are distributed uniformly over its cross-section.
 """
 from __future__ import annotations
 
+from collections import OrderedDict
+import hashlib
+from pathlib import Path
+import warnings
 import numpy as np
 from scipy.special import ellipk, ellipe
 
 MU0 = 4e-7 * np.pi
+_COIL_CACHE = OrderedDict()
+_CACHE_DIR = Path(__file__).resolve().parents[1] / '_work' / 'cache'
+
+
+def cached_coils(kind, row, R, Z, order, compute):
+    """Cache exact geometry/grid results; retain only eight matrices in RAM."""
+    digest = hashlib.sha256(b'coil-greens-v1')
+    # Invalidate on numerical implementation changes as well as input changes.
+    for source in (Path(__file__), Path(__file__).resolve().parents[1]/'mast/simple.py'):
+        digest.update(source.read_bytes())
+    digest.update(kind.encode())
+    digest.update(str(order).encode())
+    for value in (R, Z, *(row[k] for k in ('coil_input_column', 'coil_R', 'coil_Z',
+                  'coil_width', 'coil_height', 'coil_angle1', 'coil_angle2'))):
+        a = np.ascontiguousarray(value)
+        digest.update(str((a.dtype.str, a.shape)).encode())
+        digest.update(a.tobytes())
+    key = digest.hexdigest()
+    if key in _COIL_CACHE:
+        _COIL_CACHE.move_to_end(key)
+        return _COIL_CACHE[key]
+    path = _CACHE_DIR / (kind + '-' + key + '.npz')
+    matrix = None
+    try:
+        with np.load(path, allow_pickle=False) as saved:
+            candidate = saved['matrix']
+            checksum = hashlib.sha256(candidate.tobytes()).hexdigest()
+            if (str(saved['key']) == key and str(saved['sha256']) == checksum
+                    and candidate.dtype == np.float64
+                    and candidate.shape == (len(R)*len(Z), len(set(row['coil_input_column']))
+                                            if kind == 'mast' else len(row['coil_input_column']))
+                    and np.isfinite(candidate).all()):
+                matrix = candidate
+    except (OSError, ValueError, KeyError, EOFError):
+        pass
+    if matrix is None:
+        matrix = compute()
+        if not np.isfinite(matrix).all():
+            raise ValueError('Nonfinite coil Green matrix')
+        try:
+            _CACHE_DIR.mkdir(parents=True, exist_ok=True)
+            # Exclusive creation; interrupted or invalid files are never reused.
+            with path.open('xb') as stream:
+                np.savez(stream, key=np.asarray(key), matrix=matrix,
+                         sha256=np.asarray(hashlib.sha256(matrix.tobytes()).hexdigest()))
+        except FileExistsError:
+            pass
+        except OSError as exc:
+            warnings.warn(f'Coil cache not saved: {exc}', RuntimeWarning)
+    matrix.setflags(write=False)
+    _COIL_CACHE[key] = matrix
+    while len(_COIL_CACHE) > 8:
+        _COIL_CACHE.popitem(last=False)
+    return matrix
 
 
 def loop_flux(R, Z, source_R, source_Z):
@@ -81,11 +139,11 @@ def coil_matrix(row, R, Z, order=6):
     columns = list(row["coil_input_column"])
     if any(c == "magnetics_bcoil" for c in columns):
         raise ValueError("Toroidal field coil must not enter poloidal-flux sum")
-    return np.column_stack([
+    return cached_coils('diii_d', row, R, Z, order, lambda: np.column_stack([
         rectangle_flux(rr, zz, row["coil_R"][j], row["coil_Z"][j],
                        row["coil_width"][j], row["coil_height"][j],
                        row["coil_angle1"][j], row["coil_angle2"][j], order).ravel()
-        for j in range(len(columns))])
+        for j in range(len(columns))]))
 
 
 def plasma_grid(nR=12, nZ=16, bounds=(1.15, 2.15, -.8, .8)):

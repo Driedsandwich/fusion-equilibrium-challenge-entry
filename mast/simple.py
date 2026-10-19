@@ -7,7 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT/'diag'), str(ROOT/'starter_ref')]
 from capacity import read_columns, local_path, swap_reading
-from greens import rectangle_flux, loop_flux
+from greens import rectangle_flux, loop_flux, cached_coils
 from data_fixes import align_mast_thomson_core
 import argparse
 import gc
@@ -33,6 +33,23 @@ def interp(t, values, target):
     return np.interp(target,t[ok],values[ok])*1000.
 
 def coil_groups(row, order=3):
+    matrix = cached_coils('mast', row, row['efit_grid_R'], row['efit_grid_Z'],
+                          order, lambda: _compute_coil_groups(row, order)[0])
+    names = np.asarray(row['coil_input_column'])
+    if set(names) != set(P_NAMES+[SOL]):
+        raise ValueError('Unexpected poloidal geometry groups')
+    checks = {}
+    for name in P_NAMES+[SOL]:
+        idx = np.flatnonzero(names == name)
+        area = row['coil_width'][idx]*row['coil_height'][idx]
+        weights = area/area.sum()
+        if (area <= 0).any() or not np.isclose(weights.sum(), 1):
+            raise ValueError('Conductor allocation must sum to one')
+        checks[name] = dict(conductors=len(idx), allocation_sum=float(weights.sum()))
+    return matrix, checks
+
+
+def _compute_coil_groups(row, order=3):
     rr, zz = np.meshgrid(row['efit_grid_R'],row['efit_grid_Z'])
     names = np.asarray(row['coil_input_column'])
     if set(names) != set(P_NAMES+[SOL]):

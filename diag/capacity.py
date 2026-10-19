@@ -102,11 +102,22 @@ def guard(state, stage, shot, start, budget):
 
 def arrow_value(scalar):
     """Decode rectangular nested arrays without Python lists of every pixel."""
-    if not scalar.is_valid:
-        raise ValueError("Unexpected null shot column")
-    array = scalar.values
+    # Keep the outer shot list as an Array: constructing a nested ListScalar
+    # first can materialize every element before scalar.values is accessed.
+    if isinstance(scalar, pa.ChunkedArray):
+        scalar = scalar.chunk(0) if scalar.num_chunks == 1 else scalar.combine_chunks()
+    if isinstance(scalar, pa.Array):
+        if len(scalar) != 1 or scalar.null_count:
+            raise ValueError("Expected one nonnull shot column")
+        array = scalar.flatten()
+    else:
+        if not scalar.is_valid:
+            raise ValueError("Unexpected null shot column")
+        array = scalar.values
     shape = [len(array)]
     while pa.types.is_list(array.type) or pa.types.is_large_list(array.type) or pa.types.is_fixed_size_list(array.type):
+        if array.null_count:
+            raise ValueError("Unexpected null in requested nested input")
         lengths = np.asarray(array.value_lengths())
         if len(lengths) == 0 or np.any(lengths != lengths[0]):
             raise ValueError("Ragged array is not supported for requested columns")
@@ -124,7 +135,7 @@ def read_columns(path, columns):
     if pf.metadata.num_rows != 1:
         raise ValueError(f"Expected one shot per file: {path}")
     table = pf.read(columns=list(dict.fromkeys(columns)), use_threads=False)
-    return {name: arrow_value(table[name][0]) for name in columns}
+    return {name: arrow_value(table[name]) for name in columns}
 
 
 def load_shot(path):
