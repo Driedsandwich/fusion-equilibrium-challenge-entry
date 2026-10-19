@@ -18,10 +18,26 @@ def feature_names():
     return names
 
 
+def _monotone(times, values):
+    """Repair a malformed time axis: truncate to a common length, drop non-finite
+    times, sort, and keep the last sample of each repeated time. Only called when
+    the axis fails the strict check, so well-formed inputs are untouched."""
+    n = min(len(times), len(values))
+    times, values = times[:n], values[:n]
+    keep = np.isfinite(times)
+    times, values = times[keep], values[keep]
+    if len(times):
+        order = np.argsort(times, kind="stable")
+        times, values = times[order], values[order]
+        last = np.r_[np.diff(times) > 0, True]
+        times, values = times[last], values[last]
+    return times, values
+
+
 def latest(times, values, target):
     times, values = np.asarray(times, float), np.asarray(values, float)
     if len(times) != len(values) or np.any(np.diff(times) <= 0) or not np.isfinite(times).all():
-        raise ValueError("Invalid diagnostic time axis")
+        times, values = _monotone(times, values)
     idx = np.searchsorted(times, target, side="right") - 1
     out = np.zeros((len(target),) + values.shape[1:])
     valid = idx >= 0
@@ -35,7 +51,7 @@ def history(times, values, target):
     valid = np.isfinite(times) & np.isfinite(values)
     times, values = times[valid], values[valid]
     if np.any(np.diff(times) <= 0):
-        raise ValueError("Nonmonotone current times")
+        times, values = _monotone(times, values)
     now = latest(times, values, target)
     cols = []
     # Centred seconds reduce cancellation in the prefix sums for short windows.

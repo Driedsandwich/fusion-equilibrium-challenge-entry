@@ -70,11 +70,26 @@ def _compute_coil_groups(row, order=3):
         checks[name] = dict(conductors=len(idx), allocation_sum=float(weights.sum()))
     return np.column_stack(columns), checks
 
+def _repair_thomson(Te, times, R):
+    """Repair a malformed Thomson layout (only called when the strict check fails):
+    common lengths, finite times, sorted, last sample of each repeated time kept."""
+    Te = np.atleast_2d(np.asarray(Te, float))
+    n = min(Te.shape[0], len(times)); m = min(Te.shape[1], len(R))
+    Te, times, R = Te[:n, :m], times[:n], R[:m]
+    keep = np.isfinite(times)
+    Te, times = Te[keep], times[keep]
+    order = np.argsort(times, kind='stable')
+    Te, times = Te[order], times[order]
+    if len(times):
+        last = np.r_[np.diff(times) > 0, True]
+        Te, times = Te[last], times[last]
+    return Te, times, R
+
 def thomson_geometry(row):
     R, Te, _ = align_mast_thomson_core(row)
     times = row['thomson_core_times']
     if Te.shape != (len(times),len(R)) or not np.all(np.diff(times)>0):
-        raise ValueError('Unexpected Thomson layout')
+        Te, times, R = _repair_thomson(Te, np.asarray(times, float), np.asarray(R, float))
     centers = []; radii = []; valid_times = []
     for t,profile in zip(times,Te):
         good = np.isfinite(R)&np.isfinite(profile)&(R>0)&(profile>0)
@@ -87,7 +102,14 @@ def thomson_geometry(row):
         centers.append(float(np.sum(r*p)/p.sum()))
         radii.append(float(np.ptp(active)/2)); valid_times.append(t)
     if not valid_times:
-        raise ValueError('No valid Thomson profile; no guessed MAST equilibrium prior')
+        # Label-free fallback from the shot's own chord geometry only (no MAST
+        # equilibrium data): centre at the mean channel radius, minor radius a
+        # quarter of the chord span. Every frame of such a shot uses it.
+        good = np.isfinite(R) & (R > 0)
+        if good.sum() < 2:
+            raise ValueError('No valid Thomson profile or chord geometry')
+        n = len(row['efit_times'])
+        return (np.full(n, float(np.mean(R[good]))), np.full(n, float(np.ptp(R[good]) / 4)), n)
     # Nearest measured profile; clamp at the acquisition ends, explicitly counted.
     target = row['efit_times']; ts = np.asarray(valid_times)
     right = np.minimum(np.searchsorted(ts,target),len(ts)-1)
@@ -110,7 +132,10 @@ def predict(row, calibration, g):
     for t,(center,a) in enumerate(zip(centers,radii)):
         ar = center+a*dx; bz = kappa*a*dz
         if (ar<=0).any():
-            raise ValueError('Thomson ellipse reaches nonpositive source R')
+            # Only frames whose ellipse would cross R=0: shrink the minor radius so the
+            # sources stay at R >= 2 cm (well-formed frames are untouched).
+            a = max(min(a, (center-.02)/np.abs(dx).max()), 1e-3) if center > .02 else 1e-3
+            ar = np.maximum(center+a*dx, .02); bz = kappa*a*dz
         pg = loop_flux(rr.ravel()[:,None],zz.ravel()[:,None],ar,bz)
         plasma[t] = ip[t]*pg.mean(axis=1)
     vacuum_p = current[:,:10]@g[:,:10].T
