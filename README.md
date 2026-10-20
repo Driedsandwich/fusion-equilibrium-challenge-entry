@@ -18,6 +18,21 @@ Data is not included. Training uses the public challenge dataset on Hugging Face
 - Test inputs: `ganatma/fusion-equilibrium-challenge-final` at revision `965040c12b814f33c8e7209f6b1799932247e793`, configs `diii_d_private_test` (879 files) and `mast_private_test` (1,205 files), split `private_test`. Submission #1 read local copies of these files with `--local-dir _data/final/<config>` and `--config <config>`. The run manifests store a SHA-256 for every input file. On 2026-10-20 all 2,084 values matched the Hub's LFS records at that revision.
 - Output: `submission.zip`, 1,918,727,900 bytes, SHA-256 `5e753ee20c4aa03723ad395d0655b8972aed445747490b2dcbbabca499ffe1f3`. Its root holds only `diii_d_private_test.npz` and `mast_private_test.npz`.
 
+## Submission #2 record
+
+- Platform: Codabench competition 17739, Final phase; submission ID recorded after upload.
+- Code: tag `submission-2`. Inference code is that of commit `e5aaaae`; compared with submission #1 (`c337865`) it adds only the `--mast-sol-scale` option (recorded as a separate run-identity field), whose default 1.0 reproduces submission #1. The environment (`requirements-lock.txt`, Python 3.12.13; on 2026-10-20 the `.venv` package list matched the lock file) and `weights/model.joblib` and `diag/calib_joint_result.json` (same SHA-256 in the run manifest) are those listed under submission #1.
+- DIII-D: `diii_d_private_test.npz` is submission #1's file, extracted from submission #1's ZIP: 1,397,867,474 bytes, SHA-256 `b2af65a4244ede7cd5f3c8083dc17e4d708143b2295838eaf74be30f1a717702`; the DIII-D members of both ZIPs have this size and SHA-256. This submission therefore leaves the entry's best DIII-D score unchanged.
+- MAST: regenerated from the same 1,205 local Final-phase input files with `--mast-sol-scale 656`; no other setting changed (origin c = 0 as in submission #1). The starter-kit README's geometry section states that MAST ships one geometry row per conductor turn and that all 656 solenoid rows share `magnetics_sol_current`, the solenoid feed current in kA. Submission #1 applied that current once (multiplier 1); submission #2 applies it in each of the 656 turns. The README's units note forbids turn multipliers on the shaping-coil columns, which are already in kA·turn; its reasons for keeping other channels in plain kA name `ECOILA`, `bcoil` and `tf`, not the solenoid. The value is the shipped row count; no MAST equilibrium, MAST score or statistic of either was used to choose it.
+- Difference from submission #1 (prediction archives only, no truth): over 1,205 shots and 68,373 frames, absolute ψ difference median 0.0306 Wb/rad and maximum 0.1212 Wb/rad; q95 and βN bitwise equal.
+- Output: `submission.zip`, 1,876,764,675 bytes, SHA-256 `eeead2a18e2fa5a708b4331220bd122ed50e4f4ff4d0e89ac3cd9fe16a20d65e`; MAST NPZ SHA-256 `b5bffe9f3bffe80ea3c438b3ec617b3cabb526049bd977bc19cdaac16288c6a5`. Root members: `diii_d_private_test.npz` and `mast_private_test.npz`.
+- Commands (repository root):
+
+      .venv/bin/python -B predict.py --config mast_private_test --local-dir _data/final/mast_private_test --weights weights --work-dir _work/final6/mast --mast-sol-scale 656
+      .venv/bin/python -B predict.py --config mast_private_test --local-dir _data/final/mast_private_test --weights weights --work-dir _work/final6/mast --mast-sol-scale 656 --assemble --output _work/final6/out/mast_private_test.npz
+      .venv/bin/python -B validate.py _work/final6/out/mast_private_test.npz --config mast_private_test --local-dir _data/final/mast_private_test
+      .venv/bin/python -B make_zip.py --diii-d _work/final6/out/diii_d_private_test.npz --mast _work/final6/out/mast_private_test.npz --output _work/final6/out/submission.zip
+
 ## Environment and working directory
 
 Run all commands from the repository root. Relative inputs and outputs resolve from that root. Use `.venv/bin/python`.
