@@ -1,6 +1,6 @@
 # fusion-equilibrium-entry
 
-Entry for the Fusion Equilibrium Challenge (NeurIPS 2026). Final-phase submission #1 was made on 19 October 2026 (UTC); see "Submission #1 record" below.
+Entry for the Fusion Equilibrium Challenge (NeurIPS 2026). Final-phase submissions #1 and #2 were made on 19 and 21 October 2026 (UTC); see "Submission #1 record" and "Submission #2 record" below.
 
 - `base/` — DIII-D model: PCA of the flux map, with the PCA coefficients and the two scalars (q95, betaN) regressed from non-magnetic inputs (coil currents, Ip, Thomson summaries) by gradient-boosted trees (scikit-learn `HistGradientBoostingRegressor`, used by `train.py` for the submitted weights). `base/train_eval_v2.py` also compares ridge and a small MLP on held-out shots.
 - `diag/` — diagnostics, including a check of how well a coil-plus-plasma-filament Green's-function representation can fit DIII-D flux maps.
@@ -20,7 +20,7 @@ Data is not included. Training uses the public challenge dataset on Hugging Face
 
 ## Submission #2 record
 
-- Platform: Codabench competition 17739, Final phase; submission ID recorded after upload.
+- Platform: Codabench competition 17739, Final phase, submission ID 1007599, created 2026-10-21 07:12 UTC, scored (status Finished).
 - Code: tag `submission-2`. Inference code is that of commit `e5aaaae`; compared with submission #1 (`c337865`) it adds only the `--mast-sol-scale` option (recorded as a separate run-identity field), whose default 1.0 reproduces submission #1. The environment (`requirements-lock.txt`, Python 3.12.13; on 2026-10-20 the `.venv` package list matched the lock file) and `weights/model.joblib` and `diag/calib_joint_result.json` (same SHA-256 in the run manifest) are those listed under submission #1.
 - DIII-D: `diii_d_private_test.npz` is submission #1's file, extracted from submission #1's ZIP: 1,397,867,474 bytes, SHA-256 `b2af65a4244ede7cd5f3c8083dc17e4d708143b2295838eaf74be30f1a717702`; the DIII-D members of both ZIPs have this size and SHA-256. This submission therefore leaves the entry's best DIII-D score unchanged.
 - MAST: regenerated from the same 1,205 local Final-phase input files with `--mast-sol-scale 656`; no other setting changed (origin c = 0 as in submission #1). The starter-kit README's geometry section states that MAST ships one geometry row per conductor turn and that all 656 solenoid rows share `magnetics_sol_current`, the solenoid feed current in kA. Submission #1 applied that current once (multiplier 1); submission #2 applies it in each of the 656 turns. The README's units note forbids turn multipliers on the shaping-coil columns, which are already in kA·turn; its reasons for keeping other channels in plain kA name `ECOILA`, `bcoil` and `tf`, not the solenoid. The value is the shipped row count; no MAST equilibrium, MAST score or statistic of either was used to choose it.
