@@ -8,13 +8,11 @@ audience: ai
 
 全312本の学習は完了しています。`weights/train_meta.json` の実測は101.226秒です。`datasets` 5.1.0は導入済みです。今回の修正では外部取得・遠隔stream・本番全件は実行していません。古い `_work/submission_smoke/verification.json` は当時の履歴として残しています。
 
-## 現在の提出条件（2026-10-19 主催のお知らせ）
+## Final-phase conditions (official announcement of 2026-10-19)
 
-- **Final全期間・チーム全体で成功提出は合計3回です。** 失敗した提出はこの3回に数えません。1日3回という意味ではありません。
-- **提出時のCode URLは不要です。リポジトリを事前に公開へ切り替える必要もありません。** 選択済みリポジトリと公開設定は変更しません。アップロードとSubmitは本人が行います。
-- **各提出の正確なコード・固定環境・重み・データ来歴を保存します。** 固定コミットまたは版付き書庫とSHA-256、入力データ固定版、推論条件、ZIPのSHA-256を提出IDへ対応付けます。1回目の既存ZIPは `_work/final4/out/submission.zip`、コードの保存基点は `submission-1`（`c337865f9e4810c47570d73aa0a4d5da4c9e4070`）です。
-- Final終了後、主催から求められた各部門上位5件が7日以内に再現パッケージを提供します。その時点の公開・外部送信は別の本人操作です。今の提出前に公開する手順はありません。
-- 一次資料は主催の2026-10-19のお知らせです。以下は計算用の命令例であり、再実行や追加提出の指示ではありません。
+- Three scored submissions in total for the whole Final phase; a submission that fails to score does not count.
+- No Code URL is required. Keep the exact code, pinned environment, trained weights and data provenance behind every Final submission; after the Final closes, the top five entries per challenge are asked for a reproduction package within 7 days.
+- The commands below are calculation examples, not instructions to resubmit.
 
 ## 手元の開発データで2 shotsずつ試す
 

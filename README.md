@@ -33,6 +33,22 @@ Data is not included. Training uses the public challenge dataset on Hugging Face
       .venv/bin/python -B validate.py _work/final6/out/mast_private_test.npz --config mast_private_test --local-dir _data/final/mast_private_test
       .venv/bin/python -B make_zip.py --diii-d _work/final6/out/diii_d_private_test.npz --mast _work/final6/out/mast_private_test.npz --output _work/final6/out/submission.zip
 
+## Submission #3 record
+
+- Platform: Codabench competition 17739, Final phase; submission ID recorded after upload.
+- Code: tag `submission-3`. It adds `mast/qb_physics.py`, `mast/qb_io.py`, `mast/qb_generate.py`, `mast/qb_assemble.py`, `diag/qb_gate_diiid.py` and `diag/test_qb_physics.py`; no earlier code file changes. The environment, `weights/model.joblib` and `diag/calib_joint_result.json` are those of submissions #1 and #2.
+- DIII-D: the same `diii_d_private_test.npz` as submissions #1 and #2 (1,397,867,474 bytes, SHA-256 `b2af65a4244ede7cd5f3c8083dc17e4d708143b2295838eaf74be30f1a717702`), so the entry's best DIII-D score does not change.
+- MAST flux maps: every `shot_XXXX_psirz` member is copied from submission #2's `mast_private_test.npz` as its compressed ZIP member, without re-encoding. For all 1,205 shots the CRC, compressed size and method are equal, and so are the SHA-256 of the decoded arrays.
+- MAST q95 and betaN (the only change; in submissions #1 and #2 they were DIII-D medians): estimated without MAST equilibrium data. q95 = (|F|/2π)∮ dl/(R·|∇ψ|) on the ψ_N = 0.95 surface of the copied flux map, with the vacuum F = μ0·24·I_TF/(2π) from `magnetics_tf_current` (kA). The turn count 24 is MAST hardware: A. C. Darke et al., "MAST: The Mega Amp Spherical Tokamak" ("MAST uses same LVPS supply, in 24 turns giving 0.6T"), consistent with the 2.2 MA TF rod current and 0.52 T at R = 0.85 m in A. Sykes, "First Results From MAST", IAEA Fusion Energy Conference 2000, OV4/1, Table 1. betaN = 100·2μ0⟨p⟩·a/(B0·|Ip| [MA]), where ⟨p⟩ is c_p times the volume average of the Thomson electron pressure n_e·T_e mapped to ψ_N, a and R_geo come from the LCFS and B0 = |F|/R_geo. c_p = 2.42 was fitted on the first 60 shots of the DIII-D training list (DIII-D: 144 TF turns, General Atomic report GA-A-13668, 1975).
+- Physical ranges: frames that fail or fall outside 2 < q95 < 20 or 0 < betaN < 7 take the median of the same shot's in-range estimates (q95: 16,422 of 68,373 frames; betaN: 22,632 frames, of which 193 in shots with no in-range estimate take the median of all in-range MAST estimates of this submission, 1.54).
+- Check on DIII-D (EFIT flux maps of the 52 held-out training shots, every fourth frame, 3,101 frames): pooled R² 0.903 for q95 and 0.866 for betaN. MAST cannot be checked without MAST equilibria.
+- Output: `submission.zip`, 1,876,964,972 bytes, SHA-256 `f115dbd957f16c075c46497890515700cc239041bfc51aae7b453b134f0eb21d`; MAST NPZ 479,097,236 bytes, SHA-256 `22abe08c10c9bad84f78dad02056d6ac17f9fa73db9aae9429ec93a31e2747e6`. Root members: `diii_d_private_test.npz` and `mast_private_test.npz`.
+- Commands (repository root; `qb_assemble.py` runs `make_zip.py` and `validate.py`):
+
+      .venv/bin/python -B diag/qb_gate_diiid.py
+      .venv/bin/python -B mast/qb_generate.py --work-dir _work/final7/qb/full
+      .venv/bin/python -B mast/qb_assemble.py --qb-dir _work/final7/qb/full --out-dir _work/final7/out
+
 ## Environment and working directory
 
 Run all commands from the repository root. Relative inputs and outputs resolve from that root. Use `.venv/bin/python`.

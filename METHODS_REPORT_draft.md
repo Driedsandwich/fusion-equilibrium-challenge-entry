@@ -1,11 +1,14 @@
 # Methods report (draft outline, 1–2 pages)
 
-1. Summary — one paragraph: machine-agnostic physics skeleton (coil Green's functions + Ip-scaled plasma current distribution placed from Thomson geometry), the same model applied to both machines.
-2. Inputs and preprocessing — data_fixes; resampling inputs onto efit_times; no target interpolation.
-3. Model — vacuum flux from coil rectangles and ampere-turn currents; plasma current distribution parameterization; the regressor and its machine-agnostic features; q95 and betaN from the predicted flux.
-4. Zero-shot transfer to MAST — what changes between machines (geometry and inputs only); statement that no MAST equilibrium data was used (rule 3).
-5. Safeguards — derivation-failure gate, float16 without rounding, fallback solution, in-shot smoothing.
-6. Local evaluation — DIII-D held-out scores with local_score.py; extrapolation test across DIII-D bands.
-7. Compute — hardware, wall-clock for training and any CPU-only generation; compute-light badge claim if applicable.
-8. AI assistance disclosure (rule 4) — which AI coding assistants were used, for which parts, and that the entrant takes responsibility for the submission.
-9. Reproduction — repository URL and pinned commit SHA; training and inference entrypoints.
+Outline of the report rule 7 asks of prize candidates; it is not part of any submission. It describes the models actually submitted (submissions #1–#3; records in the README).
+
+1. Summary — DIII-D: PCA of the flux map with the coefficients, q95 and betaN regressed from the challenge inputs (coil currents, Ip and Thomson summaries) by gradient-boosted trees. MAST (zero-shot): a coil Green's-function skeleton with a uniform elliptical plasma current, calibrated on DIII-D only; in submission #3, q95 and betaN are estimated from that flux map, MAST inputs and published hardware values.
+2. Inputs and preprocessing — official `data_fixes` (`fix_d3d_ip_times` inside a causal window in the DIII-D features, `align_mast_thomson_core` for MAST); inputs resampled onto `efit_times`; malformed Thomson time axes repaired (finite, sorted, last sample of a repeated time).
+3. DIII-D model — 121 inputs (window means and slopes of coil currents and Ip, Thomson profile summaries); PCA of ψ (20 components); one `HistGradientBoostingRegressor` per coefficient and per scalar; trained on 312 shots (`train.py`).
+4. MAST model — vacuum flux from the shipped coil rectangles and ampere-turn currents (solenoid feed current applied once in #1, per each of 656 turns in #2 and #3); plasma current Ip spread uniformly over an ellipse centred on the Thomson electron-temperature centroid, elongation 1.81; coefficient alpha_F and kappa from twelve DIII-D shots; flux origin c = 0. q95 and betaN: DIII-D medians in #1 and #2; in #3, q at psi_N = 0.95 from the flux map with the vacuum toroidal field (24 TF turns), and betaN from Thomson pressure averaged over flux-surface volumes with a pressure factor fitted on DIII-D.
+5. Rule 3 — no MAST equilibrium data, statistic of it or MAST score used for training, calibration, validation or selection; MAST inputs, shipped geometry, published hardware values and DIII-D equilibria only.
+6. Safeguards — float16 written without rounding; ellipse shrunk only where it would cross R = 0; in #3, failed or physically out-of-range q95/betaN frames filled with the shot median of in-range estimates. There is no in-shot smoothing and no derivation-failure gate on ψ.
+7. Local evaluation — DIII-D: 47 of 52 held-out training shots, every eighth frame, S = 0.900 (`base/v2_full_report.md`). #3 estimates with DIII-D EFIT flux maps on the same 52 held-out shots: R² 0.903 (q95) and 0.866 (betaN). MAST cannot be evaluated locally (no labels).
+8. Compute — CPU only; full DIII-D training 101 s (`weights/train_meta.json`); compute-light badge claimed.
+9. AI assistance disclosure (rule 4) — to be completed by the entrant: which AI coding assistants were used, for which parts, and that the entrant takes responsibility for the submission.
+10. Reproduction — repository and pinned commit per submission (tags `submission-1`, `submission-2`, `submission-3`); training (`train.py`) and inference (`predict.py`, `mast/qb_generate.py`, `mast/qb_assemble.py`) entrypoints.
