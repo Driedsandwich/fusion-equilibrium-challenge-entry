@@ -1,6 +1,6 @@
 # fusion-equilibrium-entry
 
-Entry for the Fusion Equilibrium Challenge (NeurIPS 2026). Final-phase submissions #1 and #2 were made on 19 and 21 October 2026 (UTC); see "Submission #1 record" and "Submission #2 record" below.
+Entry for the Fusion Equilibrium Challenge (NeurIPS 2026). Final-phase submissions #1, #2 and #3 were made on 19, 21 and 26 October 2026 (UTC); see "Submission #1 record", "Submission #2 record" and "Submission #3 record" below.
 
 - `base/` — DIII-D model: PCA of the flux map, with the PCA coefficients and the two scalars (q95, betaN) regressed from non-magnetic inputs (coil currents, Ip, Thomson summaries) by gradient-boosted trees (scikit-learn `HistGradientBoostingRegressor`, used by `train.py` for the submitted weights). `base/train_eval_v2.py` also compares ridge and a small MLP on held-out shots.
 - `diag/` — diagnostics, including a check of how well a coil-plus-plasma-filament Green's-function representation can fit DIII-D flux maps.
@@ -35,7 +35,7 @@ Data is not included. Training uses the public challenge dataset on Hugging Face
 
 ## Submission #3 record
 
-- Platform: Codabench competition 17739, Final phase; submission ID recorded after upload.
+- Platform: the organizers' Final-phase submission page (https://fusion-equilibrium-challenge.sophelio.io/final-submission/), used because Codabench was unreachable from 22 October (organizers' announcement of 23 October). Receipt FW-B0CA2C4F, received 2026-10-26 23:12:02 UTC; the page reported both `diii_d_private_test.npz` and `mast_private_test.npz` found. The page takes a pointer to a private Hugging Face dataset repository: the two NPZ members of the output below were pushed to its root at commit `25269b4235d8374ab95b604f64b1d82dbaed1b18`, where their sizes and LFS SHA-256 equal those recorded in this section. The ZIP itself was not uploaded.
 - Code: tag `submission-3`. It adds `mast/qb_physics.py`, `mast/qb_io.py`, `mast/qb_generate.py`, `mast/qb_assemble.py`, `diag/qb_gate_diiid.py` and `diag/test_qb_physics.py`; no earlier code file changes. The environment, `weights/model.joblib` and `diag/calib_joint_result.json` are those of submissions #1 and #2.
 - DIII-D: the same `diii_d_private_test.npz` as submissions #1 and #2 (1,397,867,474 bytes, SHA-256 `b2af65a4244ede7cd5f3c8083dc17e4d708143b2295838eaf74be30f1a717702`), so the entry's best DIII-D score does not change.
 - MAST flux maps: every `shot_XXXX_psirz` member is copied from submission #2's `mast_private_test.npz` as its compressed ZIP member, without re-encoding. For all 1,205 shots the CRC, compressed size and method are equal, and so are the SHA-256 of the decoded arrays.
@@ -43,7 +43,7 @@ Data is not included. Training uses the public challenge dataset on Hugging Face
 - Physical ranges: frames that fail or fall outside 2 < q95 < 20 or 0 < betaN < 7 take the median of the same shot's in-range estimates (q95: 16,422 of 68,373 frames; betaN: 22,632 frames, of which 193 in shots with no in-range estimate take the median of all in-range MAST estimates of this submission, 1.54).
 - Check on DIII-D (EFIT flux maps of the 52 held-out training shots, every fourth frame, 3,101 frames): pooled R² 0.903 for q95 and 0.866 for betaN. MAST cannot be checked without MAST equilibria.
 - Output: `submission.zip`, 1,876,964,972 bytes, SHA-256 `f115dbd957f16c075c46497890515700cc239041bfc51aae7b453b134f0eb21d`; MAST NPZ 479,097,236 bytes, SHA-256 `22abe08c10c9bad84f78dad02056d6ac17f9fa73db9aae9429ec93a31e2747e6`. Root members: `diii_d_private_test.npz` and `mast_private_test.npz`.
-- Commands (repository root; `qb_assemble.py` runs `make_zip.py` and `validate.py`):
+- Commands (repository root; `qb_assemble.py` runs `make_zip.py` and `validate.py`). They read submission #2's `_work/final6/out/mast_private_test.npz` and `_work/final6/out/diii_d_private_test.npz`, produced by the commands in "Submission #2 record":
 
       .venv/bin/python -B diag/qb_gate_diiid.py
       .venv/bin/python -B mast/qb_generate.py --work-dir _work/final7/qb/full
@@ -73,7 +73,7 @@ sh -eu -c '
 '
 ```
 
-`train.py` refuses to overwrite an existing model. The separate `--weights` output preserves bundled `weights/`. Calibration writes `diag/calib_joint_result.json`, `diag/joint_locals/` and its report; finish calibration before starting a new prediction run. To use rebuilt DIII-D weights, set `WEIGHTS=_work/rebuilt/weights` below. Full training and calibration also accept `--no-guard`; the default remains fail closed.
+For submission #3, also refit the MAST pressure factor c_p on DIII-D training shots with `.venv/bin/python -B diag/qb_gate_diiid.py`; it writes `diag/qb_gate_result.json`, which `mast/qb_generate.py` reads. `train.py` refuses to overwrite an existing model. The separate `--weights` output preserves bundled `weights/`. Calibration writes `diag/calib_joint_result.json`, `diag/joint_locals/` and its report; finish calibration before starting a new prediction run. To use rebuilt DIII-D weights, set `WEIGHTS=_work/rebuilt/weights` below. Full training and calibration also accept `--no-guard`; the default remains fail closed.
 
 `diag/capacity_result_run2.json` is the archived second capacity diagnostic on the fixed twelve DIII-D shots listed in `diag/calib_joint.py`. Its settings were stride 4, quadrature order 6, relative ridge 1e-10 and a 520-second budget; the diagnostic took 44.948 seconds. Calibration consumes only its shot identities and `geometry.box_m`. The box is the union of stored LCFS contours over all 2,342 frames of those twelve shots, padded by 0.05 m on each side. No MAST equilibrium enters this calculation.
 
@@ -85,7 +85,7 @@ The organizer's rebuild tolerance (19 October 2026 announcement): a retrained mo
 
 ## Regenerate both NPZ files and the ZIP with one command
 
-The values below are the Final-phase inputs of submission #1. Use a fresh `RUN_DIR`. Submission #1 itself read local copies of the same files with `--local-dir` (see "Submission #1 record"); this streaming form has not been re-run on the Final-phase inputs.
+The values below are the Final-phase inputs of submission #1. This form regenerates submission #1; submission #2 adds `--mast-sol-scale 656` to the MAST commands, and submission #3 then replaces only q95 and betaN with the commands in "Submission #3 record". Use a fresh `RUN_DIR`. Submission #1 itself read local copies of the same files with `--local-dir` (see "Submission #1 record"); this streaming form has not been re-run on the Final-phase inputs.
 
 ```bash
 export DATASET_REPO='ganatma/fusion-equilibrium-challenge-final'

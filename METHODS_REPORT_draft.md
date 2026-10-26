@@ -11,4 +11,4 @@ Outline of the report rule 7 asks of prize candidates; it is not part of any sub
 7. Local evaluation — DIII-D: 47 of 52 held-out training shots, every eighth frame, S = 0.900 (`base/v2_full_report.md`). #3 estimates with DIII-D EFIT flux maps on the same 52 held-out shots: R² 0.903 (q95) and 0.866 (betaN). MAST cannot be evaluated locally (no labels).
 8. Compute — CPU only; full DIII-D training 101 s (`weights/train_meta.json`); compute-light badge claimed.
 9. AI assistance disclosure (rule 4) — to be completed by the entrant: which AI coding assistants were used, for which parts, and that the entrant takes responsibility for the submission.
-10. Reproduction — repository and pinned commit per submission (tags `submission-1`, `submission-2`, `submission-3`); training (`train.py`) and inference (`predict.py`, `mast/qb_generate.py`, `mast/qb_assemble.py`) entrypoints.
+10. Reproduction — repository and pinned commit per submission (tags `submission-1`, `submission-2`, `submission-3`); training (`train.py`; for #3 also the DIII-D fit of c_p, `diag/qb_gate_diiid.py`) and inference (`predict.py`, `mast/qb_generate.py`, `mast/qb_assemble.py`) entrypoints.
