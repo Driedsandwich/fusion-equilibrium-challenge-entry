@@ -1,12 +1,24 @@
 # fusion-equilibrium-entry
 
-Entry for the Fusion Equilibrium Challenge (NeurIPS 2026). Final-phase submissions #1, #2 and #3 were made on 19, 21 and 26 October 2026 (UTC); see "Submission #1 record", "Submission #2 record" and "Submission #3 record" below.
+Entry for the Fusion Equilibrium Challenge (NeurIPS 2026). Final-phase submissions #1, #2 and #3 were made on 19, 21 and 26 October 2026 (UTC); see "Submission #1 record", "Submission #2 record" and "Submission #3 record" below. In the final results published on 14 November 2026 (https://fusion-equilibrium-challenge.sophelio.io/results/), the entry placed 46th of 57 in Challenge 1 (DIII-D composite S 0.920579) and 30th of 41 in Challenge 2 (G 0.551062, MAST S 0.507296), and won no award.
 
 - `base/` — DIII-D model: PCA of the flux map, with the PCA coefficients and the two scalars (q95, betaN) regressed from non-magnetic inputs (coil currents, Ip, Thomson summaries) by gradient-boosted trees (scikit-learn `HistGradientBoostingRegressor`, used by `train.py` for the submitted weights). `base/train_eval_v2.py` also compares ridge and a small MLP on held-out shots.
 - `diag/` — diagnostics, including a check of how well a coil-plus-plasma-filament Green's-function representation can fit DIII-D flux maps.
 - `starter_ref/` — unmodified files from the official starter kit (MIT, see `starter_ref/LICENSE-starter-MIT`), including the official scorer `fusion_scoring/`.
 
 Data is not included. Training uses the public challenge dataset on Hugging Face (`Sophelio/fusion-equilibrium-challenge`, CC BY 4.0). Final-phase test inputs come from `ganatma/fusion-equilibrium-challenge-final`.
+
+## About this public copy
+
+This repository is a public copy of the private development repository. Before publication, one sentence was edited in the version of `SUBMISSION_COMMANDS.md` stored in three earlier commits (it named a local file path and an email from the organizers); no other file differs in any commit. Commits up to and including submission #1's `c337865` keep their IDs. Later commits have new IDs here:
+
+| Original commit | In this copy | Note |
+|---|---|---|
+| `e5aaaae` | `5dba2dd` | inference code of submission #2 |
+| `f16f76c` | `9805e8d` | tag `submission-2` |
+| `f4a610d` | `ffb3213` | |
+| `7b84dc9` | `36aa572` | tag `submission-3` |
+| `7af13e0` | `9558761` | |
 
 ## Submission #1 record
 
@@ -21,7 +33,7 @@ Data is not included. Training uses the public challenge dataset on Hugging Face
 ## Submission #2 record
 
 - Platform: Codabench competition 17739, Final phase, submission ID 1007599, created 2026-10-21 07:12 UTC, scored (status Finished).
-- Code: tag `submission-2`. Inference code is that of commit `e5aaaae`; compared with submission #1 (`c337865`) it adds only the `--mast-sol-scale` option (recorded as a separate run-identity field), whose default 1.0 reproduces submission #1. The environment (`requirements-lock.txt`, Python 3.12.13; on 2026-10-20 the `.venv` package list matched the lock file) and `weights/model.joblib` and `diag/calib_joint_result.json` (same SHA-256 in the run manifest) are those listed under submission #1.
+- Code: tag `submission-2`. Inference code is that of commit `5dba2dd` (`e5aaaae` in the original history); compared with submission #1 (`c337865`) it adds only the `--mast-sol-scale` option (recorded as a separate run-identity field), whose default 1.0 reproduces submission #1. The environment (`requirements-lock.txt`, Python 3.12.13; on 2026-10-20 the `.venv` package list matched the lock file) and `weights/model.joblib` and `diag/calib_joint_result.json` (same SHA-256 in the run manifest) are those listed under submission #1.
 - DIII-D: `diii_d_private_test.npz` is submission #1's file, extracted from submission #1's ZIP: 1,397,867,474 bytes, SHA-256 `b2af65a4244ede7cd5f3c8083dc17e4d708143b2295838eaf74be30f1a717702`; the DIII-D members of both ZIPs have this size and SHA-256. This submission therefore leaves the entry's best DIII-D score unchanged.
 - MAST: regenerated from the same 1,205 local Final-phase input files with `--mast-sol-scale 656`; no other setting changed (origin c = 0 as in submission #1). The starter-kit README's geometry section states that MAST ships one geometry row per conductor turn and that all 656 solenoid rows share `magnetics_sol_current`, the solenoid feed current in kA. Submission #1 applied that current once (multiplier 1); submission #2 applies it in each of the 656 turns. The README's units note forbids turn multipliers on the shaping-coil columns, which are already in kA·turn; its reasons for keeping other channels in plain kA name `ECOILA`, `bcoil` and `tf`, not the solenoid. The value is the shipped row count; no MAST equilibrium, MAST score or statistic of either was used to choose it.
 - Difference from submission #1 (prediction archives only, no truth): over 1,205 shots and 68,373 frames, absolute ψ difference median 0.0306 Wb/rad and maximum 0.1212 Wb/rad; q95 and βN bitwise equal.
@@ -111,4 +123,4 @@ sh -eu -c '
 
 Packaging uses the same NPZ checker as `validate.py` for exact keys, contiguous shot numbering, shapes, float16 and finite values. `validate.py` additionally checks dataset shot/frame counts. ZIP root members are exactly `diii_d_private_test.npz` and `mast_private_test.npz`, stored without recompression.
 
-Local two-shot, development and production commands are in `SUBMISSION_COMMANDS.md`. No upload is performed. Under the organizer's 19 October 2026 participant guide, the whole Final allows three successfully scored submissions per team; a failed submission does not use one of those three. A Code URL and a public repository are not required at submission time. Keep the exact code, pinned environment, weights and data provenance for every submission, with its fixed commit or versioned archive and SHA256, input revision, inference settings and ZIP identity. After the Final, the top five entries per challenge have seven days to supply a reproduction package when requested. The selected repository and its visibility remain unchanged; upload and submission remain human actions. See `DATA_PROVENANCE.md` for per-machine data use.
+Local two-shot, development and production commands are in `SUBMISSION_COMMANDS.md`. No upload is performed. Under the organizer's 19 October 2026 participant guide, the whole Final allows three successfully scored submissions per team; a failed submission does not use one of those three. A Code URL and a public repository are not required at submission time. Keep the exact code, pinned environment, weights and data provenance for every submission, with its fixed commit or versioned archive and SHA256, input revision, inference settings and ZIP identity. After the Final, the top five entries per challenge have seven days to supply a reproduction package when requested. See `DATA_PROVENANCE.md` for per-machine data use.
