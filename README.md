@@ -10,7 +10,7 @@ Data is not included. Training uses the public challenge dataset on Hugging Face
 
 ## About this public copy
 
-This repository is a public copy of the private development repository. Before publication, one sentence was edited in the version of `SUBMISSION_COMMANDS.md` stored in three earlier commits (it named a local file path and an email from the organizers); no other file differs in any commit. Commits up to and including submission #1's `c337865` keep their IDs. Later commits have new IDs here:
+This repository is a public copy of the private development repository. Before publication, a heading and one sentence were edited in the version of `SUBMISSION_COMMANDS.md` stored in three earlier commits (they named a local file path and an email from the organizers); no other file differs in any commit. Commits up to and including `69ab04f`, the commit after submission #1's `c337865`, keep their IDs. Later commits have new IDs here:
 
 | Original commit | In this copy | Note |
 |---|---|---|
