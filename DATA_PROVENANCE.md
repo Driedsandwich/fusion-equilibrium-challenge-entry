@@ -1,6 +1,6 @@
 # Data provenance (per machine)
 
-Covers Final-phase submissions #1 (code tag `submission-1`), #2 (code tag `submission-2`) and #3 (code tag `submission-3`). Rule 6 asks for a data-provenance statement per machine. Update this file for later submissions.
+Covers Final-phase submissions #1 (code tag `submission-1`), #2 (code tag `submission-2`) and #3 (code tag `submission-3`). Rule 6 asks for a data-provenance statement per machine. These were all of the entry's Final-phase submissions.
 
 ## DIII-D
 - Training and model selection: `Sophelio/fusion-equilibrium-challenge` DIII-D train split (inputs and EFIT targets) at revision `1e280905b85f2a6fdde7e06fca8cf3a1edf447cb`, with the starter kit's `data_fixes.fix_d3d_ip_times` applied. The submitted weights use the 312 files named in `train_shots.txt`.
